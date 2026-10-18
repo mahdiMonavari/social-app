@@ -10,9 +10,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-background text-foreground">
         <NavBar />
-        <main className="container mx-auto px-3 py-6 sm:px-6 lg:px-10">{children}</main>
+        <main className="container mx-auto px-3 py-6 sm:px-6 lg:px-10">
+          {children}
+        </main>
       </body>
     </html>
   );
