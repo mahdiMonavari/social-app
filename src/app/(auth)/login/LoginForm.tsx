@@ -1,4 +1,5 @@
 "use client";
+import { authClient } from "@/src/lib/auth-client";
 import { loginSchema, LoginSchemaType } from "@/src/lib/schemas/login";
 import {
   Button,
@@ -7,16 +8,19 @@ import {
   FieldError,
   Input,
   TextField,
+  toast,
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { GiPadlock } from "react-icons/gi";
 
 function LoginForm() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -24,8 +28,23 @@ function LoginForm() {
       password: "",
     },
   });
-  const submitHandler = (data: LoginSchemaType) => {
-    console.log({ data });
+  const submitHandler = async (data: LoginSchemaType) => {
+    const { email, password } = data;
+    await authClient.signIn.email(
+      {
+        email,
+        password,
+      },
+      {
+        onSuccess: () => {
+          router.push("/members");
+          router.refresh();
+        },
+        onError: (ctx) => {
+          toast.danger(ctx.error.message);
+        },
+      },
+    );
   };
   return (
     <Card className="w-md shadow-xl">
@@ -58,7 +77,7 @@ function LoginForm() {
           />
           <FieldError>{errors.password?.message}</FieldError>
         </TextField>
-        <Button type="submit" className={"w-full"}>
+        <Button isPending={isSubmitting} type="submit" className={"w-full"}>
           submit
         </Button>
       </form>

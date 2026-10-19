@@ -1,4 +1,5 @@
 "use client";
+import { authClient } from "@/src/lib/auth-client";
 import { registerSchema, RegisterSchemaType } from "@/src/lib/schemas/register";
 import {
   Button,
@@ -9,23 +10,43 @@ import {
   TextField,
 } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { GiPadlock } from "react-icons/gi";
 
 function RegisterForm() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<RegisterSchemaType>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
+      name: "",
     },
   });
-  const submitHandler = (data: RegisterSchemaType) => {
-    console.log({ data });
+  const submitHandler = async (data: RegisterSchemaType) => {
+    const { email, name, password } = data;
+    await authClient.signUp.email(
+      {
+        email,
+        name,
+        password,
+      },
+      {
+        onSuccess: () => {
+          router.push("/members");
+          router.refresh();
+        },
+        onError: (error) => {
+          console.log(error.error.message);
+        },
+      },
+    );
   };
   return (
     <Card className="w-md shadow-xl">
@@ -77,7 +98,7 @@ function RegisterForm() {
           />
           <FieldError>{errors.confirmPassword?.message}</FieldError>
         </TextField>
-        <Button type="submit" className={"w-full"}>
+        <Button isPending={isSubmitting} type="submit" className={"w-full"}>
           submit
         </Button>
       </form>
