@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import NavBar from "@/components/nav/NavBar";
+import NavBar from "@/src/app/components/nav/NavBar";
 import { ToastProvider } from "@heroui/react";
 
 export const metadata: Metadata = {
@@ -14,7 +14,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="bg-background text-foreground">
         <ToastProvider placement="top" />
         <NavBar />
-        <main className="container mx-auto px-3 py-6 sm:px-6 lg:px-10">
+        <main className="container min-h-[calc(100dvh-70px)] mx-auto p-3 sm:px-6 lg:px-10 flex flex-col mt-[70px]">
           {children}
         </main>
       </body>

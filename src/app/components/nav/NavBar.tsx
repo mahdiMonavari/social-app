@@ -28,7 +28,7 @@ function AuthLinks() {
 export default async function NavBar() {
   const user = await getCurrentUser();
   return (
-    <header className="sticky top-0 z-50 w-full bg-linear-to-r from-accent/85 to-black">
+    <header className="fixed top-0 z-50 w-full bg-linear-to-r from-accent/85 to-black">
       <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-x-3 px-3 py-3 sm:px-6 lg:flex lg:justify-between lg:gap-6 lg:px-10">
         <Link
           href="/"
