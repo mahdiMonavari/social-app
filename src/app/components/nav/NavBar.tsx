@@ -50,7 +50,7 @@ export default async function NavBar() {
         >
           <NavLinks />
         </nav>
-        <div className="hidden lg:block">
+        <div className="hidden lg:block size-10">
           {user ? <UserMenu user={user} /> : <AuthLinks />}
         </div>
 

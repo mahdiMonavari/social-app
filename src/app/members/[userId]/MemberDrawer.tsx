@@ -28,10 +28,14 @@ export interface MemberProfileProps {
     country?: string | null;
     userId: string;
   };
+  isCurrentUser: boolean;
 }
 
-export default function MemberDrawer({ member }: MemberProfileProps) {
-  const [isOpen, setIsOpen] = useState(true);
+export default function MemberDrawer({
+  member,
+  isCurrentUser,
+}: MemberProfileProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const closeHandler = () => setIsOpen(false);
   return (
     <Drawer isOpen={isOpen} onOpenChange={setIsOpen}>
@@ -105,6 +109,7 @@ export default function MemberDrawer({ member }: MemberProfileProps) {
                 userId={member.userId}
                 isVertical={true}
                 onNavigate={closeHandler}
+                isCurrentUser={isCurrentUser}
               />
             </DrawerFooter>
           </DrawerDialog>

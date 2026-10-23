@@ -17,7 +17,7 @@ function NavLinks() {
         <Link
           key={item.href}
           href={item.href}
-          className={`${pathName.includes(item.href) ? "bg-white/30" : "hover:bg-white/10"} px-2 py-1 rounded-2xl`}
+          className={`${item.href.includes(pathName) ? "bg-white/30" : "hover:bg-white/10"} px-2 py-1 rounded-2xl`}
         >
           {item.label}
         </Link>

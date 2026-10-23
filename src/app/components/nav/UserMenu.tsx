@@ -1,8 +1,16 @@
 "use client";
 import { authClient } from "@/src/lib/auth-client";
-import { Avatar, Dropdown, DropdownTrigger, Label } from "@heroui/react";
+import {
+  Avatar,
+  Dropdown,
+  DropdownTrigger,
+  Label,
+  Separator,
+} from "@heroui/react";
 import { User } from "better-auth";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ComponentProps } from "react";
 
 type Props = {
   user: User;
@@ -24,26 +32,36 @@ function UserMenu({ user }: Props) {
     <Dropdown>
       <DropdownTrigger>
         <Avatar>
-          <Avatar.Image
-            alt={user.name}
-            src="https://img.heroui.chat/image/avatar?w=400&h=400&u=3"
-          />
+          <Avatar.Image alt={user.name} src={user.image || ""} />
           <Avatar.Fallback>{user.name.charAt(0)}</Avatar.Fallback>
         </Avatar>
       </DropdownTrigger>
       <Dropdown.Popover>
-        <Dropdown.Menu>
-          <Dropdown.Item id="edit-profile" textValue="Edit Profile">
-            <Label>Edit Profile</Label>
-          </Dropdown.Item>
-          <Dropdown.Item
-            onClick={onLogout}
-            id="logout"
-            textValue="Logout"
-            variant="danger"
-          >
-            <Label>Logout</Label>
-          </Dropdown.Item>
+        <Dropdown.Menu disabledKeys={["signed-in"]}>
+          <Dropdown.Section>
+            <Dropdown.Item id="signed-in">Sign In As {user.name}</Dropdown.Item>
+          </Dropdown.Section>
+          <Separator className="my-1" />
+          <Dropdown.Section>
+            <Dropdown.Item
+              id="edit-profile"
+              textValue="Edit Profile"
+              render={(itemProps) => (
+                <Link {...(itemProps as ComponentProps<typeof Link>)}></Link>
+              )}
+              href={`/members/${user.id}`}
+            >
+              <Label>Edit Profile</Label>
+            </Dropdown.Item>
+            <Dropdown.Item
+              onClick={onLogout}
+              id="logout"
+              textValue="Logout"
+              variant="danger"
+            >
+              <Label>Logout</Label>
+            </Dropdown.Item>
+          </Dropdown.Section>
         </Dropdown.Menu>
       </Dropdown.Popover>
     </Dropdown>

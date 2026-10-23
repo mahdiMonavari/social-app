@@ -14,6 +14,8 @@ import Link from "next/link";
 import MemberDrawer from "./MemberDrawer";
 import { FaArrowLeft } from "react-icons/fa6";
 import MemberNav from "./MemberNav";
+import TitleSection from "./TitleSection";
+import { requiredUser } from "@/src/lib/auth";
 
 async function Layout({
   children,
@@ -26,6 +28,8 @@ async function Layout({
 
   const member = await getMemberByUserId(userId);
   if (!member) return notFound();
+  const currentUser = await requiredUser();
+  const isCurrentUser = currentUser.id === member?.userId;
 
   const currentYear = new Date().getFullYear();
   const memberAge = member.dateOfBirth
@@ -64,7 +68,7 @@ async function Layout({
               <Separator className="my-2" />
 
               <nav className="w-full text-sm">
-                <MemberNav userId={userId} />
+                <MemberNav userId={userId} isCurrentUser={isCurrentUser} />
               </nav>
             </CardContent>
           </div>
@@ -85,10 +89,10 @@ async function Layout({
       </aside>
 
       <main className="col-span-1 md:col-span-3 flex-1 flex flex-col h-full min-h-0 gap-2">
-        <Card className="w-full flex-1 flex flex-col overflow-hidden shadow-sm p-0">
+        <Card className="w-full flex-1 flex flex-col overflow-hidden shadow-sm p-3">
           <div className="flex md:hidden items-center justify-between p-3 pb-0 bg-clip-content">
             <div className="flex items-center gap-2">
-              <MemberDrawer member={member} />
+              <MemberDrawer member={member} isCurrentUser={isCurrentUser} />
               <span className="font-semibold text-sm truncate">
                 {member.name}
               </span>
@@ -103,10 +107,10 @@ async function Layout({
 
           <div className="flex-1 flex flex-col overflow-hidden">
             <CardHeader className="px-3 md:px-10 pt-0 md:pt-2">
-              TITLE
+              <TitleSection name={member.name} />
             </CardHeader>
             <Separator className="my-2" />
-            <CardContent>{children}</CardContent>
+            <CardContent className="px-3 md:px-10">{children}</CardContent>
           </div>
         </Card>
       </main>
