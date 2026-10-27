@@ -1,5 +1,6 @@
 "use client";
 import { authClient } from "@/src/lib/auth-client";
+import { transformImageUrl } from "@/src/lib/utils";
 import {
   Avatar,
   Dropdown,
@@ -32,7 +33,10 @@ function UserMenu({ user }: Props) {
     <Dropdown>
       <DropdownTrigger>
         <Avatar>
-          <Avatar.Image alt={user.name} src={user.image || ""} />
+          <Avatar.Image
+            alt={user.name}
+            src={transformImageUrl(user.image) || "/images/user.png"}
+          />
           <Avatar.Fallback>{user.name.charAt(0)}</Avatar.Fallback>
         </Avatar>
       </DropdownTrigger>

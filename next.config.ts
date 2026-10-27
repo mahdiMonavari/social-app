@@ -10,6 +10,16 @@ const nextConfig: NextConfig = {
         hostname: "randomuser.me",
         pathname: "/**",
       },
+      {
+        protocol: "http", // اضافه شد
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
     ],
   },
   turbopack: {

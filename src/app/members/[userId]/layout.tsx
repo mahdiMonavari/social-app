@@ -16,6 +16,7 @@ import { FaArrowLeft } from "react-icons/fa6";
 import MemberNav from "./MemberNav";
 import TitleSection from "./TitleSection";
 import { requiredUser } from "@/src/lib/auth";
+import { transformImageUrl } from "@/src/lib/utils";
 
 async function Layout({
   children,
@@ -37,14 +38,13 @@ async function Layout({
     : null;
 
   return (
-    <div className="flex flex-col md:grid md:grid-cols-4 gap-4 md:gap-6 flex-1 w-full h-full min-h-0">
-      {/* ۱. سایدبار دسکتاپ */}
-      <aside className="hidden md:block md:col-span-1 h-full">
+    <div className="flex flex-col md:grid md:grid-cols-4 gap-4 md:gap-6 w-full h-[calc(100vh-90px)] min-h-0">
+      <aside className="hidden md:block md:col-span-1">
         <Card className="w-full h-full flex flex-col justify-between overflow-hidden shadow-sm">
           <div>
             <div className="relative w-full aspect-square rounded-full overflow-hidden">
               <Image
-                src={member.img || "/images/user-placeholder.png"}
+                src={transformImageUrl(member?.img) || "/images/user.png"}
                 alt={member.name || "Member profile"}
                 fill
                 sizes="25vw"
@@ -53,7 +53,7 @@ async function Layout({
               />
             </div>
 
-            <CardContent className="flex flex-col gap-3 items-center text-center p-4">
+            <CardContent className="flex flex-col gap-2 items-center text-center p-2">
               <h2 className="text-xl md:text-2xl font-semibold">
                 {member.name}
                 {memberAge ? ` , ${memberAge}` : ""}
@@ -73,7 +73,7 @@ async function Layout({
             </CardContent>
           </div>
 
-          <CardFooter className="p-4 pt-0">
+          <CardFooter className="">
             <Link
               className={buttonVariants({
                 variant: "secondary",
@@ -88,8 +88,8 @@ async function Layout({
         </Card>
       </aside>
 
-      <main className="col-span-1 md:col-span-3 flex-1 flex flex-col h-full min-h-0 gap-2">
-        <Card className="w-full flex-1 flex flex-col overflow-hidden shadow-sm p-3">
+      <main className="col-span-1 md:col-span-3 flex flex-col h-full min-h-0 gap-2">
+        <Card className="w-full h-full flex flex-col overflow-hidden shadow-sm p-3">
           <div className="flex md:hidden items-center justify-between p-3 pb-0 bg-clip-content">
             <div className="flex items-center gap-2">
               <MemberDrawer member={member} isCurrentUser={isCurrentUser} />
@@ -107,10 +107,14 @@ async function Layout({
 
           <div className="flex-1 flex flex-col overflow-hidden">
             <CardHeader className="px-3 md:px-10 pt-0 md:pt-2">
-              <TitleSection name={member.name} />
+              <TitleSection name={member.name} isCurrentUser={isCurrentUser} />
             </CardHeader>
             <Separator className="my-2" />
-            <CardContent className="px-3 md:px-10">{children}</CardContent>
+
+            {/* بخش محتوا که با flex-1 کل فضای ارتفاعیِ کارت را می‌کشد و در صورت زیاد شدن پیام‌ها اسکرول می‌خورد */}
+            <CardContent className="flex-1 flex flex-col px-3 overflow-y-auto min-h-0">
+              {children}
+            </CardContent>
           </div>
         </Card>
       </main>

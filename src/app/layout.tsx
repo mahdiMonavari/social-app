@@ -14,7 +14,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="bg-background text-foreground">
         <ToastProvider placement="top" />
         <NavBar />
-        <main className="container min-h-[calc(100dvh-70px)] mx-auto p-3 sm:px-6 lg:px-10 flex flex-col mt-[70px]">
+        <main className="container min-h-[calc(100dvh-70px)] h-full mx-auto p-3 sm:px-6 lg:px-10 flex flex-col mt-16">
           {children}
         </main>
       </body>

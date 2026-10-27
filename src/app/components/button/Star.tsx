@@ -8,7 +8,7 @@ type Props = {
 
 function Star({ isSelected, loading }: Props) {
   return (
-    <div className="relative">
+    <div className="relative hover:scale-90 transition-all duration-300">
       {loading ? (
         <PiSpinnerGap size={32} className="fill-white animate-spin" />
       ) : (
