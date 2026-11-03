@@ -1,5 +1,5 @@
 import { basicMessageType, flatMessageType } from "./schemas/types";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 
 export function formatDateHandler(date: Date): string {
   return format(date, "dd MMM yyy h:mm:a");
@@ -13,8 +13,8 @@ export function flatMessageHandler(message: basicMessageType): flatMessageType {
   return {
     id,
     text,
-    createdAt: formatDateHandler(createdAt),
-    dateRead: dateRead === null ? null : formatDateHandler(dateRead),
+    createdAt: createdAt.toISOString(),
+    dateRead: dateRead === null ? null : dateRead.toISOString(),
     recipientId: recipient.userId,
     recipientImg: recipient.img,
     recipientName: recipient.name,
@@ -33,4 +33,14 @@ export function transformImageUrl(imageUrl?: string | null) {
   const transformation = "c_fill,w_640,h_640,g_face/";
 
   return `${imageUrl.slice(0, uploadIndex)}${transformation}${imageUrl.slice(uploadIndex)}`;
+}
+export function createChatId(a: string, b: string) {
+  return a > b ? `private-${b}-${a}` : `private-${a}-${b}`;
+}
+
+export function formatShortDateTime(date: Date) {
+  return format(date, "dd MMM yy h:mm:a");
+}
+export function timeAgo(date: string) {
+  return formatDistanceToNow(new Date(date), { addSuffix: true });
 }

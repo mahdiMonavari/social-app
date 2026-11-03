@@ -1,24 +1,48 @@
 "use client";
 import { flatMessageType } from "@/src/lib/schemas/types";
-import { transformImageUrl } from "@/src/lib/utils";
-import { Avatar, Button, Table } from "@heroui/react";
+import { Button, Table, toast } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
 import { AiFillDelete } from "react-icons/ai";
 import { deleteMessage } from "../server/actions/message";
+import PresenceAvatar from "../components/PresenceAvatar";
+import { useMessageStore } from "@/src/lib/hooks/useMessageStore";
+import { useShallow } from "zustand/shallow";
+import { formatShortDateTime } from "@/src/lib/utils";
 
 type Props = {
-  messages: flatMessageType[];
+  initialMessages: flatMessageType[];
   container: "inbox" | "outbox";
 };
 
-function MessagesTabel({ container, messages }: Props) {
+function MessagesTabel({ container, initialMessages }: Props) {
   const tabelTitle = container === "inbox" ? "Sender" : "Recipiant";
   const router = useRouter();
   const [isDeleting, startDeleting] = useTransition();
-  const deleteMessageHandler = (messageId: string) => {
+  const initMessages = useRef(initialMessages);
+  const { set, messages, remove, updateUnreadCount } = useMessageStore(
+    useShallow((state) => ({
+      set: state.set,
+      messages: state.messages,
+      remove: state.remove,
+      updateUnreadCount: state.updateUnReadMessageCount,
+    })),
+  );
+  useEffect(() => {
+    set(initMessages.current);
+    return () => set([]);
+  }, [set, container]);
+  const deleteMessageHandler = (message: flatMessageType) => {
     startDeleting(async () => {
-      await deleteMessage(messageId, container === "outbox");
+      const result = await deleteMessage(message.id, container === "outbox");
+      if (!result.success) {
+        toast.danger("Somthing Went Wrong");
+      } else {
+        remove(message.id);
+        if (!message.dateRead && container === "inbox") {
+          updateUnreadCount(-1);
+        }
+      }
     });
   };
 
@@ -55,19 +79,15 @@ function MessagesTabel({ container, messages }: Props) {
                   className={`cursor-pointer ${isVisited ? "" : "font-bold"}`}
                 >
                   <Table.Cell className="flex items-center gap-1">
-                    <Avatar>
-                      <Avatar.Image
-                        alt={name}
-                        src={transformImageUrl(image) || "/images/user.png"}
-                      />
-                      <Avatar.Fallback>{name.charAt(0)}</Avatar.Fallback>
-                    </Avatar>
+                    <PresenceAvatar src={image} userId={partyId} />
                     {name}
                   </Table.Cell>
                   <Table.Cell>
                     <span className="line-clamp-1">{message.text}</span>
                   </Table.Cell>
-                  <Table.Cell>{message.createdAt}</Table.Cell>
+                  <Table.Cell>
+                    {formatShortDateTime(new Date(message.createdAt))}
+                  </Table.Cell>
                   <Table.Cell>
                     <div onPointerDown={(e) => e.stopPropagation()}>
                       <Button
@@ -75,7 +95,7 @@ function MessagesTabel({ container, messages }: Props) {
                         variant="danger-soft"
                         aria-label="delete"
                         isPending={isDeleting}
-                        onClick={() => deleteMessageHandler(message.id)}
+                        onClick={() => deleteMessageHandler(message)}
                       >
                         <AiFillDelete size={18} />
                       </Button>

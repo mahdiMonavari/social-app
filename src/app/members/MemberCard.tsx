@@ -5,6 +5,7 @@ import Link from "next/link";
 import ButtonLike from "../components/like/ButtonLike";
 import { requiredUser } from "@/src/lib/auth";
 import { getCurrentUsreLike } from "../server/actions/likes";
+import PresenceDot from "../components/PresenceDot";
 
 type Props = {
   member: Member;
@@ -30,8 +31,11 @@ async function MemberCard({ member }: Props) {
           className="object-cover"
           sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 16vw"
         />
-        <div className="absolute top-3 right-3 z-50">
+        <div className="absolute top-3 right-3 z-10">
           <ButtonLike hasLike={hasLike} targetUserId={member.userId} />
+        </div>
+        <div className="absolute top-2 left-2 z-10">
+          <PresenceDot member={member} />
         </div>
         <CardFooter className="absolute bottom-0 left-0 right-0 py-2 px-1 bg-linear-to-b  to-black">
           <div className="flex flex-col text-white px-4">

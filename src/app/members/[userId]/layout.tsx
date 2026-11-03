@@ -17,6 +17,7 @@ import MemberNav from "./MemberNav";
 import TitleSection from "./TitleSection";
 import { requiredUser } from "@/src/lib/auth";
 import { transformImageUrl } from "@/src/lib/utils";
+import PresenceDot from "../../components/PresenceDot";
 
 async function Layout({
   children,
@@ -54,9 +55,10 @@ async function Layout({
             </div>
 
             <CardContent className="flex flex-col gap-2 items-center text-center p-2">
-              <h2 className="text-xl md:text-2xl font-semibold">
+              <h2 className="text-xl md:text-2xl font-semibold flex items-center justify-center gap-1">
                 {member.name}
                 {memberAge ? ` , ${memberAge}` : ""}
+                <PresenceDot member={member} />
               </h2>
 
               {(member.city || member.country) && (
@@ -93,8 +95,9 @@ async function Layout({
           <div className="flex md:hidden items-center justify-between p-3 pb-0 bg-clip-content">
             <div className="flex items-center gap-2">
               <MemberDrawer member={member} isCurrentUser={isCurrentUser} />
-              <span className="font-semibold text-sm truncate">
+              <span className="font-semibold text-sm truncate flex items-center gap-1">
                 {member.name}
+                <PresenceDot member={member} />
               </span>
             </div>
             <Link

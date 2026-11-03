@@ -1,17 +1,17 @@
 "use server";
-import { Message } from "@/generated/prisma/client";
 import { MessageWhereInput } from "@/generated/prisma/models";
 import { requiredUser } from "@/src/lib/auth";
 import { prisma } from "@/src/lib/prisma";
+import { pusherServer } from "@/src/lib/pusher";
 import { chatSchema, ChatType } from "@/src/lib/schemas/chat";
-import { ActionResult } from "@/src/lib/schemas/types";
-import { flatMessageHandler } from "@/src/lib/utils";
+import { ActionResult, flatMessageType } from "@/src/lib/schemas/types";
+import { createChatId, flatMessageHandler } from "@/src/lib/utils";
 import { revalidatePath } from "next/cache";
 
 export async function createMessage(
   recipientId: string,
   data: ChatType,
-): Promise<ActionResult<Message>> {
+): Promise<ActionResult<flatMessageType>> {
   try {
     const user = await requiredUser();
     const parsed = chatSchema.safeParse(data);
@@ -21,13 +21,26 @@ export async function createMessage(
         error: parsed.error.issues[0].message,
       };
     }
-    const message = await prisma.message.create({
+    const rowMessage = await prisma.message.create({
       data: {
         text: data.text,
         recipientId,
         senderId: user.id,
       },
+      select: selectItem,
     });
+    const message = flatMessageHandler(rowMessage);
+    await pusherServer.trigger(
+      createChatId(user.id, recipientId),
+      "message:new",
+      message,
+    );
+    await pusherServer.trigger(
+      `private-${recipientId}`,
+      "message:new",
+      message,
+    );
+    revalidatePath(`/members/${recipientId}/chat`);
     return { success: true, data: message };
   } catch (error) {
     if (error && error instanceof Error) {
@@ -36,7 +49,6 @@ export async function createMessage(
         error: error.message,
       };
     }
-    revalidatePath(`/members/${recipientId}/chat`);
     return {
       success: false,
       error: "Somthing Went Wrong",
@@ -65,23 +77,53 @@ export async function getMessages(recipientId: string) {
       orderBy: { createdAt: "asc" },
       select: selectItem,
     });
+    let readCount = 0;
     if (messages.length > 0) {
+      const readMessageIds = messages
+        .filter(
+          (message) =>
+            message.recipient?.userId === user.id &&
+            message.sender?.userId === recipientId &&
+            message.dateRead === null,
+        )
+        .map((m) => m.id);
       await prisma.message.updateMany({
-        where: {
-          senderId: recipientId,
-          recipientId: user.id,
-          dateRead: null,
-        },
+        where: { id: { in: readMessageIds } },
         data: {
           dateRead: new Date(),
         },
       });
+      readCount = readMessageIds.length;
+      await pusherServer.trigger(
+        createChatId(recipientId, user.id),
+        "message:read",
+        readMessageIds,
+      );
     }
-    return messages.map((message) => flatMessageHandler(message));
+    return {
+      messages: messages.map((message) => flatMessageHandler(message)),
+      readCount,
+    };
   } catch (error) {
     console.log(error);
     throw error;
   }
+}
+
+export async function markMessagesAaRead(
+  messageIds: string[],
+  senderId: string,
+) {
+  const user = await requiredUser();
+  await prisma.message.updateMany({
+    where: { id: { in: messageIds } },
+    data: { dateRead: new Date() },
+  });
+  await pusherServer.trigger(
+    createChatId(user.id, senderId),
+    "message:read",
+    messageIds,
+  );
 }
 
 export async function getMessageFilterByContainer(container = "inbox") {
@@ -129,9 +171,27 @@ export async function deleteMessage(messageId: string, isOutbox: boolean) {
         },
       });
     }
-
     revalidatePath(`/members/${user.id}/chat`);
     revalidatePath(`messages`);
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+    };
+  }
+}
+
+export async function getUnreadMessageCount() {
+  try {
+    const user = await requiredUser();
+    return prisma.message.count({
+      where: {
+        recipientId: user.id,
+        dateRead: null,
+        recipinetDeleted: false,
+      },
+    });
   } catch (error) {
     console.log(error);
     throw error;

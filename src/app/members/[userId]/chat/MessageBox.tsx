@@ -1,6 +1,10 @@
 "use client";
 import { flatMessageType } from "@/src/lib/schemas/types";
-import { transformImageUrl } from "@/src/lib/utils";
+import {
+  formatShortDateTime,
+  timeAgo,
+  transformImageUrl,
+} from "@/src/lib/utils";
 import { Avatar } from "@heroui/react";
 import { clsx } from "clsx";
 import { format } from "date-fns";
@@ -77,13 +81,13 @@ function MessageBox({ currentUser, message, shouldShowAvatar }: Props) {
             <div className="flex justify-between">
               {dateRead && senderId === currentUser && (
                 <span className="text-[10px] text-black">
-                  Read at {format(dateRead, "dd MMM yyy h:mm:a")}
+                  Read {timeAgo(dateRead)}
                 </span>
               )}
 
               <div className="flex items-center gap-1 text-xs text-gray-700">
                 <span>{nameMassage}</span>
-                <span>{createdAt}</span>
+                <span>{formatShortDateTime(new Date(createdAt))}</span>
               </div>
             </div>
             <p className="text-sm font-semibold text-gray-900">{text}</p>

@@ -5,28 +5,30 @@ import { useSearchParams } from "next/navigation";
 import clsx from "clsx";
 import { GoInbox } from "react-icons/go";
 import { MdOutlineOutbox } from "react-icons/md";
+import { useMessageStore } from "@/src/lib/hooks/useMessageStore";
 
 interface NavItem {
   key: string;
   label: string;
   icon: React.ElementType;
-  badgeCount?: number;
 }
 
 const ITEMS: NavItem[] = [
-  { key: "inbox", label: "Inbox", icon: GoInbox, badgeCount: 3 },
+  { key: "inbox", label: "Inbox", icon: GoInbox },
   { key: "outbox", label: "Outbox", icon: MdOutlineOutbox },
 ];
 
 export default function MessageNav() {
   const searchParams = useSearchParams();
   const currentContainer = searchParams.get("container") ?? "inbox";
+  const unReadCount = useMessageStore((s) => s.unReadMessageCount);
 
   return (
     <nav className="flex w-full gap-2 p-1.5 md:flex-col md:max-w-56 bg-slate-50/80 dark:bg-zinc-900/60 backdrop-blur-sm rounded-2xl border border-slate-200/80 dark:border-zinc-800">
       {ITEMS.map((item) => {
         const isActive = currentContainer === item.key;
         const Icon = item.icon;
+        console.log(item.key);
 
         return (
           <Link
@@ -58,7 +60,7 @@ export default function MessageNav() {
             <span className="truncate">{item.label}</span>
 
             {/* بج/کانتر اختیاری */}
-            {typeof item.badgeCount === "number" && (
+            {item.key !== "outbox" && (
               <span
                 className={clsx(
                   "ml-auto text-xs px-2 py-0.5 rounded-full font-mono transition-colors",
@@ -67,7 +69,7 @@ export default function MessageNav() {
                     : "bg-slate-200/70 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400",
                 )}
               >
-                {item.badgeCount}
+                {unReadCount}
               </span>
             )}
           </Link>

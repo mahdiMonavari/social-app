@@ -4,10 +4,11 @@ import { chatSchema, ChatType } from "@/src/lib/schemas/chat";
 import { Button, InputGroup, toast } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams } from "next/navigation";
+import { ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import { HiPaperAirplane } from "react-icons/hi2";
 
-function ChatForm() {
+function ChatForm({ triggerTyping }: { triggerTyping: () => void }) {
   const params = useParams<{ userId: string }>();
   const {
     register,
@@ -27,14 +28,20 @@ function ChatForm() {
     }
     return resetField("text");
   };
+  const { onChange, ...registerProps } = register("text");
+  const handleEvent = async (e: ChangeEvent<HTMLInputElement>) => {
+    await onChange(e);
+    triggerTyping();
+  };
   return (
     <form onSubmit={handleSubmit(submiter)} className="w-full py-2">
       <InputGroup className="w-full flex items-center py-2 justify-between gap-1 border-none outline-none">
         <InputGroup.Input
           aria-label="chat input"
-          {...register("text")}
+          {...registerProps}
           type="text"
           className="flex-1 focus:border-none focus:outline-none"
+          onChange={handleEvent}
         />
         <InputGroup.Suffix>
           <Button
