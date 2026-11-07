@@ -12,13 +12,16 @@ import { User } from "better-auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ComponentProps } from "react";
+import FiltersMobile from "../../members/FiltersMobile";
 
 type Props = {
   user: User;
+  isMobile?: boolean;
 };
 
-function UserMenu({ user }: Props) {
+function UserMenu({ user, isMobile = false }: Props) {
   const router = useRouter();
+
   const onLogout = async () => {
     await authClient.signOut({
       fetchOptions: {
@@ -29,47 +32,59 @@ function UserMenu({ user }: Props) {
       },
     });
   };
+
   return (
-    <Dropdown>
-      <DropdownTrigger>
-        <Avatar>
-          <Avatar.Image
-            alt={user.name}
-            src={transformImageUrl(user.image) || "/images/user.png"}
-          />
-          <Avatar.Fallback>{user.name.charAt(0)}</Avatar.Fallback>
-        </Avatar>
-      </DropdownTrigger>
-      <Dropdown.Popover>
-        <Dropdown.Menu disabledKeys={["signed-in"]}>
-          <Dropdown.Section>
-            <Dropdown.Item id="signed-in">Sign In As {user.name}</Dropdown.Item>
-          </Dropdown.Section>
-          <Separator className="my-1" />
-          <Dropdown.Section>
-            <Dropdown.Item
-              id="edit-profile"
-              textValue="Edit Profile"
-              render={(itemProps) => (
-                <Link {...(itemProps as ComponentProps<typeof Link>)}></Link>
-              )}
-              href={`/members/${user.id}`}
-            >
-              <Label>Edit Profile</Label>
-            </Dropdown.Item>
-            <Dropdown.Item
-              onClick={onLogout}
-              id="logout"
-              textValue="Logout"
-              variant="danger"
-            >
-              <Label>Logout</Label>
-            </Dropdown.Item>
-          </Dropdown.Section>
-        </Dropdown.Menu>
-      </Dropdown.Popover>
-    </Dropdown>
+    <div className="flex items-center justify-between">
+      <Dropdown>
+        <DropdownTrigger>
+          <Avatar>
+            <Avatar.Image
+              alt={user.name}
+              src={transformImageUrl(user.image) || "/images/user.png"}
+            />
+            <Avatar.Fallback>{user.name.charAt(0)}</Avatar.Fallback>
+          </Avatar>
+        </DropdownTrigger>
+
+        <Dropdown.Popover
+          className={isMobile ? "mobile-nav-user-popover" : undefined}
+        >
+          <Dropdown.Menu disabledKeys={["signed-in"]}>
+            <Dropdown.Section>
+              <Dropdown.Item id="signed-in">
+                Sign In As {user.name}
+              </Dropdown.Item>
+            </Dropdown.Section>
+
+            <Separator className="my-1" />
+
+            <Dropdown.Section>
+              <Dropdown.Item
+                id="edit-profile"
+                textValue="Edit Profile"
+                render={(itemProps) => (
+                  <Link {...(itemProps as ComponentProps<typeof Link>)} />
+                )}
+                href={`/members/${user.id}`}
+              >
+                <Label>Edit Profile</Label>
+              </Dropdown.Item>
+
+              <Dropdown.Item
+                onClick={onLogout}
+                id="logout"
+                textValue="Logout"
+                variant="danger"
+              >
+                <Label>Logout</Label>
+              </Dropdown.Item>
+            </Dropdown.Section>
+          </Dropdown.Menu>
+        </Dropdown.Popover>
+      </Dropdown>
+
+      <FiltersMobile />
+    </div>
   );
 }
-
 export default UserMenu;

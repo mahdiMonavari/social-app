@@ -1,15 +1,54 @@
 "use client";
 
-import { useId, useRef, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { HiOutlineBars3, HiOutlineXMark } from "react-icons/hi2";
 
 export default function MobileNav({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuId = useId();
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const [prevPathname, setPrevPathname] = useState(pathname);
+
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setIsOpen(false);
+  }
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const nav = navRef.current;
+      if (!nav) return;
+
+      const path = event.composedPath();
+
+      if (path.includes(nav)) return;
+
+      const isInsideUserPopover = path.some(
+        (node) =>
+          node instanceof Element &&
+          node.classList.contains("mobile-nav-user-popover"),
+      );
+
+      if (isInsideUserPopover) return;
+
+      setIsOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown, true);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown, true);
+    };
+  }, [isOpen]);
 
   return (
     <div
+      ref={navRef}
       className="contents lg:hidden"
       onKeyDown={(event) => {
         if (event.key === "Escape" && isOpen) {
@@ -37,9 +76,14 @@ export default function MobileNav({ children }: { children: ReactNode }) {
       <div
         id={menuId}
         inert={!isOpen}
-        className={`col-span-2 grid transition-[grid-template-rows] duration-300 ease-in-out motion-reduce:transition-none ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        className={`col-span-2 grid transition-[grid-template-rows] duration-300 ease-in-out motion-reduce:transition-none ${
+          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
         onClick={(event) => {
-          if (event.target instanceof Element && event.target.closest("a[href]")) {
+          if (
+            event.target instanceof Element &&
+            event.target.closest("a[href]")
+          ) {
             setIsOpen(false);
           }
         }}

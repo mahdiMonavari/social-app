@@ -61,8 +61,9 @@ export default async function NavBar() {
           >
             <NavLinks />
           </nav>
+
           <div className="mt-4 border-t border-white/15 pt-4">
-            {user ? <UserMenu user={user} /> : <AuthLinks />}
+            {user ? <UserMenu user={user} isMobile /> : <AuthLinks />}
           </div>
         </MobileNav>
       </div>

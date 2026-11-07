@@ -3,6 +3,7 @@ import "./globals.css";
 import NavBar from "@/src/app/components/nav/NavBar";
 import { ToastProvider } from "@heroui/react";
 import Providers from "./components/Providers";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "social-app",
@@ -13,13 +14,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
       <body className="bg-background text-foreground">
-        <Providers>
-          <ToastProvider placement="top" />
-          <NavBar />
-          <main className="container min-h-[calc(100dvh-70px)] h-full mx-auto p-3 sm:px-6 lg:px-10 flex flex-col mt-16">
-            {children}
-          </main>
-        </Providers>
+        <Suspense fallback={null}>
+          <Providers>
+            <ToastProvider placement="top" />
+            <NavBar />
+
+            <main className="container min-h-[calc(100dvh-70px)] h-full mx-auto p-3 sm:px-6 lg:px-10 flex flex-col mt-16">
+              {children}
+            </main>
+          </Providers>
+        </Suspense>
       </body>
     </html>
   );

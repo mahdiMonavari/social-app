@@ -7,31 +7,98 @@ import {
   editProfileSchema,
   EditProfileType,
 } from "@/src/lib/schemas/editProfile";
+import { filters } from "@/src/lib/schemas/filter";
 import { ActionResult } from "@/src/lib/schemas/types";
 import { revalidatePath } from "next/cache";
+import { SearchParams } from "next/dist/server/request/search-params";
 import { cache } from "react";
+const ITEM_PERPAGE = 3;
 
-export async function getMembers() {
+export async function getMembers(queries: SearchParams): Promise<{
+  success: boolean;
+  data?: Member[];
+  message?: string;
+  page?: number;
+  items?: number;
+  perPage?: number;
+}> {
   const user = await getCurrentUser();
   if (!user) {
-    return null;
+    return { success: false, message: "Unauthraized" };
   }
   try {
-    return prisma.member.findMany({ where: { NOT: { userId: user.id } } });
+    const parsed = filters.safeParse(queries);
+    if (!parsed.success) {
+      const [data, totalItems] = await Promise.all([
+        prisma.member.findMany({
+          where: { NOT: { userId: user.id } },
+          skip: 0,
+          take: ITEM_PERPAGE,
+        }),
+        prisma.member.count({
+          where: { NOT: { userId: user.id } },
+        }),
+      ]);
+      return {
+        data,
+        success: false,
+        message: "your filters has wrong",
+        items: totalItems,
+        page: Math.ceil(totalItems / ITEM_PERPAGE),
+        perPage: ITEM_PERPAGE,
+      };
+    }
+    const { gender, orderBy, fromAge, toAge, page } = parsed.data;
+    console.log(ITEM_PERPAGE);
+
+    const currentYear = new Date().getFullYear();
+    const fromDate = new Date(currentYear - Number(fromAge), 1, 1);
+    const toDate = new Date(currentYear - Number(toAge), 1, 1);
+
+    const [data, totalItems] = await Promise.all([
+      prisma.member.findMany({
+        where: {
+          NOT: { userId: user.id },
+          ...(gender && { gender }),
+          dateOfBirth: { gte: toDate, lte: fromDate },
+        },
+        orderBy: {
+          ...(orderBy && { [orderBy]: "desc" }),
+        },
+        skip: (Number(page) - 1) * ITEM_PERPAGE,
+        take: ITEM_PERPAGE,
+      }),
+      prisma.member.count({
+        where: {
+          NOT: { userId: user.id },
+          ...(gender && { gender }),
+          dateOfBirth: { gte: toDate, lte: fromDate },
+        },
+      }),
+    ]);
+    return {
+      data,
+      success: true,
+      items: totalItems,
+      page: Math.ceil(totalItems / ITEM_PERPAGE),
+      perPage: ITEM_PERPAGE,
+    };
   } catch (error) {
     console.log(error);
+    return {
+      success: false,
+      message: "sever side error",
+    };
   }
 }
 
 export const getMemberByUserId = cache((userId: string) => {
   try {
-    // throw error;
     return prisma.member.findFirst({
       where: { userId },
     });
   } catch (error) {
     console.log(error);
-    // throw error;
   }
 });
 
@@ -143,4 +210,18 @@ export async function DeletePhoto(photo: Photo) {
   } catch (error) {
     console.log(error);
   }
+}
+
+export async function updateLastActive() {
+  const user = await requiredUser();
+  prisma.member
+    .update({
+      where: {
+        userId: user.id,
+      },
+      data: {
+        updated: new Date(),
+      },
+    })
+    .catch((e) => console.log(e));
 }

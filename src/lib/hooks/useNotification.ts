@@ -1,60 +1,80 @@
 import { Channel } from "pusher-js";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { getPusherClient } from "../pusher-js";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useMessageStore } from "./useMessageStore";
 import { flatMessageType } from "../schemas/types";
 import messageToast from "@/src/app/components/MessageToast";
-import likeToast, { LikeProps } from "@/src/app/components/LikeToast";
+import showLikeToast, { LikeProps } from "@/src/app/components/LikeToast";
 
 function useNotification(userId: string | null) {
   const channelRef = useRef<Channel | null>(null);
   const pathName = usePathname();
   const searchParams = useSearchParams();
+
   const add = useMessageStore((state) => state.add);
-  const handleNewLike = useCallback(({ name, image, userId }: LikeProps) => {
-    likeToast({ name, image, userId });
-  }, []);
   const updateUnReadMessageCount = useMessageStore(
     (state) => state.updateUnReadMessageCount,
   );
-  const handleNewMessage = useCallback(
-    (message: flatMessageType) => {
-      if (
-        pathName === "/messages" &&
-        searchParams.get("container") !== "outbox"
-      ) {
-        add(message);
-        updateUnReadMessageCount(1);
-      } else if (pathName !== `/members/${message.senderId}/chat`) {
-        updateUnReadMessageCount(1);
-        messageToast({ message });
-      }
-    },
-    [pathName, searchParams, add, updateUnReadMessageCount],
-  );
+
+  // نگه داشتن آخرین مقادیر برای جلوگیری از ساخت مجدد لیسنرها
+  const stateRef = useRef({
+    pathName,
+    searchParams,
+    add,
+    updateUnReadMessageCount,
+  });
+  useEffect(() => {
+    stateRef.current = {
+      pathName,
+      searchParams,
+      add,
+      updateUnReadMessageCount,
+    };
+  });
+
   useEffect(() => {
     if (!userId) return;
-    if (!channelRef.current) {
-      channelRef.current = getPusherClient().subscribe(`private-${userId}`);
-    }
-    return () => {
-      if (channelRef.current && channelRef.current.subscribed) {
-        channelRef.current.unsubscribe();
-        channelRef.current.unbind_all();
-        channelRef.current = null;
+
+    const pusher = getPusherClient();
+    const channel = pusher.subscribe(`private-${userId}`);
+    channelRef.current = channel;
+
+    const handleNewLike = ({ name, image, userId }: LikeProps) => {
+      showLikeToast({ name, image, userId });
+    };
+
+    const handleNewMessage = (message: flatMessageType) => {
+      const {
+        pathName: currentPath,
+        searchParams: currentParams,
+        add: addMsg,
+        updateUnReadMessageCount: updateCount,
+      } = stateRef.current;
+
+      if (
+        currentPath === "/messages" &&
+        currentParams.get("container") !== "outbox"
+      ) {
+        addMsg(message);
+        updateCount(1);
+      } else if (currentPath !== `/members/${message.senderId}/chat`) {
+        updateCount(1);
+        messageToast({ message });
       }
     };
-  }, [userId]);
-  useEffect(() => {
-    const channel = channelRef.current;
-    if (!channel) return;
+
     channel.bind("message:new", handleNewMessage);
     channel.bind("like:new", handleNewLike);
+
     return () => {
-      channel.unbind_all();
+      channel.unbind("message:new", handleNewMessage);
+      channel.unbind("like:new", handleNewLike);
+      pusher.unsubscribe(`private-${userId}`);
+      channelRef.current = null;
     };
-  }, [handleNewMessage, handleNewLike]);
+  }, [userId]);
+
   return null;
 }
 
