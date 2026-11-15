@@ -11,25 +11,23 @@ export type LikeProps = {
 
 function likeToast({ image, name, userId }: LikeProps) {
   toast(
-    <Link
-      href={`/members/${userId}/profile`}
-      className="font-semibold hover:underline"
-    >
+    <Link href={`/members/${userId}`} className="font-semibold hover:underline">
       {name} has liked you
     </Link>,
     {
       indicator: (
         <Image
-          src={transformImageUrl(image) || ""}
+          src={transformImageUrl(image) || "/images/user.png"}
           alt={name}
           width={40}
           height={40}
           className="rounded-full object-cover"
+          unoptimized
         />
       ),
       description: (
         <Link
-          href={`/members/${userId}/profile`}
+          href={`/members/${userId}`}
           className="font-semibold hover:underline"
         >
           Click To View

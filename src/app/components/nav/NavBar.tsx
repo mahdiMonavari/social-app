@@ -48,9 +48,9 @@ export default async function NavBar() {
           aria-label="Main navigation"
           className="hidden items-center gap-3 text-lg text-white uppercase lg:flex"
         >
-          <NavLinks />
+          <NavLinks isUser={!!user} />
         </nav>
-        <div className="hidden lg:block size-10">
+        <div className="hidden lg:flex">
           {user ? <UserMenu user={user} /> : <AuthLinks />}
         </div>
 
@@ -59,7 +59,7 @@ export default async function NavBar() {
             aria-label="Mobile navigation"
             className="flex flex-col gap-1 text-base text-white uppercase"
           >
-            <NavLinks />
+            <NavLinks isUser={!!user} />
           </nav>
 
           <div className="mt-4 border-t border-white/15 pt-4">

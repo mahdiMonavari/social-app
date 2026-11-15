@@ -18,11 +18,11 @@ function Providers({ children }: { children: ReactNode }) {
     updateUnReadMessage(count);
   }, [updateUnReadMessage]);
   useEffect(() => {
-    if (!isUnReadMessageSet.current) {
+    if (!isUnReadMessageSet.current && userId) {
       getUnReadMessage();
       isUnReadMessageSet.current = true;
     }
-  }, [isUnReadMessageSet, getUnReadMessage]);
+  }, [isUnReadMessageSet, getUnReadMessage, userId]);
   usePresece(userId);
   useNotification(userId);
   return <>{children}</>;

@@ -9,6 +9,7 @@ import PresenceAvatar from "../components/PresenceAvatar";
 import { useMessageStore } from "@/src/lib/hooks/useMessageStore";
 import { useShallow } from "zustand/shallow";
 import { formatShortDateTime } from "@/src/lib/utils";
+import { FaRegEnvelopeOpen } from "react-icons/fa";
 
 type Props = {
   initialMessages: flatMessageType[];
@@ -58,7 +59,23 @@ function MessagesTabel({ container, initialMessages }: Props) {
           </Table.Header>
           <Table.Body
             items={messages}
-            renderEmptyState={() => "No Message To Display"}
+            renderEmptyState={() => (
+              <div className="flex flex-col items-center justify-center gap-4 px-6 py-12 text-center text-sky-50">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full border border-red-400/30 bg-red-500/10 shadow-lg shadow-red-900/40">
+                  <FaRegEnvelopeOpen className="text-xl text-red-400" />
+                </div>
+
+                <h4 className="bg-gradient-to-r from-red-500 to-sky-500 bg-clip-text font-serif text-lg font-light tracking-wide text-transparent">
+                  No Messages Yet
+                </h4>
+
+                <div className="h-px w-12 bg-gradient-to-r from-transparent via-red-400 to-transparent" />
+
+                <p className="max-w-xs text-sm leading-relaxed text-sky-100/70">
+                  Your conversations will appear here once you start chatting.
+                </p>
+              </div>
+            )}
           >
             {(message) => {
               const partyId =

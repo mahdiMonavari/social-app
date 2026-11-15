@@ -23,18 +23,8 @@ function MessageBox({ currentUser, message, shouldShowAvatar }: Props) {
       lastMessage.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [lastMessage]);
-  const {
-    createdAt,
-    dateRead,
-    id,
-    recipientId,
-    recipientImg,
-    recipientName,
-    senderId,
-    senderImg,
-    senderName,
-    text,
-  } = message;
+  const { createdAt, dateRead, senderId, senderImg, senderName, text } =
+    message;
 
   const imageUrl = senderImg;
   const nameMassage = senderName;
@@ -78,18 +68,28 @@ function MessageBox({ currentUser, message, shouldShowAvatar }: Props) {
               "text-end": senderId === currentUser,
             })}
           >
-            <div className="flex justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
               {dateRead && senderId === currentUser && (
-                <span className="text-[10px] text-black">
+                <span className="whitespace-nowrap text-[10px] text-black">
                   Read {timeAgo(dateRead)}
                 </span>
               )}
 
-              <div className="flex items-center gap-1 text-xs text-gray-700">
-                <span>{nameMassage}</span>
-                <span>{formatShortDateTime(new Date(createdAt))}</span>
+              <div
+                className={clsx(
+                  "flex min-w-0 flex-wrap items-center gap-x-1 text-[10px] text-gray-700 md:text-xs",
+                  { "ml-auto justify-end": senderId === currentUser },
+                )}
+              >
+                <span className="max-w-25 text-[10px] truncate font-medium md:max-w-40">
+                  {nameMassage}
+                </span>
+                <span className="whitespace-nowrap text-[8px] text-gray-500 md:text-xs">
+                  {formatShortDateTime(new Date(createdAt))}
+                </span>
               </div>
             </div>
+
             <p className="text-sm font-semibold text-gray-900">{text}</p>
           </div>
         </div>

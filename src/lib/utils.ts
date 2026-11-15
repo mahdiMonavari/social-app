@@ -24,7 +24,7 @@ export function flatMessageHandler(message: basicMessageType): flatMessageType {
   };
 }
 export function transformImageUrl(imageUrl?: string | null) {
-  if (!imageUrl) return null;
+  if (!imageUrl || imageUrl === "") return null;
 
   if (!imageUrl.includes("cloudinary")) return imageUrl;
 

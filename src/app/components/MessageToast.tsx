@@ -15,11 +15,12 @@ function messageToast({ message }: { message: flatMessageType }) {
     {
       indicator: (
         <Image
-          src={transformImageUrl(message.senderImg) || ""}
+          src={transformImageUrl(message.senderImg) || "/images/user.png"}
           alt={message.senderName}
           height={40}
           width={40}
           className="rounded-full object-cover"
+          unoptimized
         />
       ),
       description: (

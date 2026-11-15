@@ -1,11 +1,7 @@
-import RegisterForm from "./RegisterForm";
+import { redirect } from "next/navigation";
 
 function RegisterPage() {
-  return (
-    <div className="flex items-center justify-center h-[calc(100vh-116px)]">
-      <RegisterForm />
-    </div>
-  );
+  redirect("/register/baseinfo");
 }
 
 export default RegisterPage;

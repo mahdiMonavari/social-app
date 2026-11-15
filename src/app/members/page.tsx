@@ -14,7 +14,7 @@ async function MembersPage(props: PageProps<"/members">) {
     toast.danger(members.message);
   }
   return (
-    <div className="flex flex-col justify-between gap-5 flex-1">
+    <div className="flex flex-col justify-between gap-5 flex-1 container mx-auto px-3 lg:px-10">
       <div className=" flex-1">
         <div className="md:block hidden">
           <Filters scope="desctope" count={members.items} />

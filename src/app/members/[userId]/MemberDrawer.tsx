@@ -42,12 +42,13 @@ export default function MemberDrawer({
       <DrawerTrigger onClick={() => setIsOpen(true)}>
         <div className="relative w-10 rounded-full overflow-hidden aspect-square cursor-pointer">
           <Image
-            src={member.img || "/images/user-placeholder.png"}
+            src={member.img || "/images/user.png"}
             alt={member.name || "Member profile"}
             fill
             sizes="10vw"
             priority
             className="object-cover"
+            unoptimized
           />
         </div>
       </DrawerTrigger>
@@ -61,11 +62,12 @@ export default function MemberDrawer({
               <div className="flex items-center gap-3">
                 <div className="relative w-14 h-14 rounded-full overflow-hidden shrink-0">
                   <Image
-                    src={member.img || "/images/user-placeholder.png"}
+                    src={member.img || "/images/user.png"}
                     alt={member.name || "Member profile"}
                     fill
                     sizes="56px"
                     className="object-cover"
+                    unoptimized
                   />
                 </div>
                 <div>

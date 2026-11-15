@@ -23,11 +23,11 @@ async function MemberCard({ member }: Props) {
        rounded-2xl hover:scale-102 transition-all duration-300 hover:shadow-2xl"
       >
         <Image
-          src={member.img || "/image"}
+          src={member.img || "/images/ersu.png"}
           alt={member.name}
           fill
           loading="eager"
-          //   unoptimized
+          unoptimized
           className="object-cover"
           sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 16vw"
         />

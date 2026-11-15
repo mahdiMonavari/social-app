@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { GiPadlock } from "react-icons/gi";
+import { GoogleSignInButton } from "../../components/GoogleButton";
 
 function LoginForm() {
   const router = useRouter();
@@ -81,6 +82,8 @@ function LoginForm() {
           submit
         </Button>
       </form>
+      <div className="block h-px  my-2 w-full bg-gray-700"></div>
+      <GoogleSignInButton />
     </Card>
   );
 }

@@ -9,7 +9,7 @@ export const navLinks = [
   { href: "/messages", label: "Messages" },
 ];
 
-function NavLinks() {
+function NavLinks({ isUser }: { isUser: boolean }) {
   const pathName = usePathname();
   const unReadCount = useMessageStore((s) => s.unReadMessageCount);
   return (
@@ -25,9 +25,11 @@ function NavLinks() {
             {item.label}
             {isMessage && (
               <>
-                <span className="absolute -right-2 -top-1 rounded-full  items-center justify-center size-5 bg-sky-700 text-white text-xs hidden md:flex">
-                  {unReadCount}
-                </span>
+                {isUser && (
+                  <span className="absolute -right-2 -top-1 rounded-full  items-center justify-center size-5 bg-sky-700 text-white text-xs hidden md:flex">
+                    {unReadCount}
+                  </span>
+                )}
                 <span className="rounded-full flex items-center justify-center size-5 bg-sky-700 text-white text-xs md:hidden">
                   {unReadCount}
                 </span>

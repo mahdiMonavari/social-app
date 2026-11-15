@@ -21,12 +21,13 @@ function PhotoCoponnet({ photo }: Props) {
         />
       ) : (
         <Image
-          src={photo.url || "/images/user-placeholder.png"}
+          src={photo.url || "/images/user.png"}
           alt="member's image"
           fill
           sizes="25vw"
           priority
           className="object-cover"
+          unoptimized
         />
       )}
     </>

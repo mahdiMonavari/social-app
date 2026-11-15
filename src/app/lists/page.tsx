@@ -7,6 +7,7 @@ import {
 } from "../server/actions/likes";
 import { requiredUser } from "@/src/lib/auth";
 import MemberCard from "../members/MemberCard";
+import { FaUserSlash } from "react-icons/fa";
 
 export type TargetValue = "target" | "source" | "mutual";
 
@@ -33,7 +34,7 @@ export default async function ListsPage({ searchParams }: Props) {
   const members = await fetchMethods[target](user.id);
 
   return (
-    <main className="mt-10">
+    <main className="mt-10 container">
       <div className="flex items-center justify-center">
         <SelectTypeShow />
       </div>
@@ -44,9 +45,25 @@ export default async function ListsPage({ searchParams }: Props) {
           ))}
         </div>
       ) : (
-        <div className="text-red-500">
-          In This Fillter Member Dont Exist Yet
-        </div>
+        <>
+          <div className="flex w-full mt-5 flex-col items-center justify-center gap-5 rounded-3xl border border-sky-200/10 bg-gradient-to-b from-sky-900/40 to-sky-950/60 px-8 py-14 text-center text-sky-50 shadow-2xl shadow-sky-950/50 backdrop-blur-xl">
+            <div className="relative flex h-20 w-20 items-center justify-center rounded-full border border-sky-300/20 bg-sky-400/10">
+              <span className="absolute inset-0 animate-ping rounded-full bg-sky-400/10" />
+              <FaUserSlash className="relative text-2xl text-sky-300" />
+            </div>
+
+            <h3 className="bg-gradient-to-r from-sky-200 via-white to-sky-300 bg-clip-text font-serif text-2xl font-light tracking-wide text-transparent">
+              No Members Found
+            </h3>
+
+            <div className="h-px w-16 bg-gradient-to-r from-transparent via-sky-300 to-transparent" />
+
+            <p className="max-w-sm text-sm leading-relaxed text-sky-100/70">
+              No one matches this filter yet. Try adjusting your preferences and
+              check back soon, new members are joining every day.
+            </p>
+          </div>
+        </>
       )}
     </main>
   );

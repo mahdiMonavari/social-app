@@ -28,8 +28,6 @@ export default function MessageNav() {
       {ITEMS.map((item) => {
         const isActive = currentContainer === item.key;
         const Icon = item.icon;
-        console.log(item.key);
-
         return (
           <Link
             key={item.key}

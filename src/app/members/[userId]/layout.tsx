@@ -39,7 +39,7 @@ async function Layout({
     : null;
 
   return (
-    <div className="flex flex-col md:grid md:grid-cols-4 gap-4 md:gap-6 w-full h-[calc(100vh-90px)] min-h-0">
+    <div className="flex flex-col md:grid md:grid-cols-4 gap-4 md:gap-6 w-full h-[calc(100vh-90px)] min-h-0  p-3 container">
       <aside className="hidden md:block md:col-span-1">
         <Card className="w-full h-full flex flex-col justify-between overflow-hidden shadow-sm">
           <div>
@@ -51,6 +51,7 @@ async function Layout({
                 sizes="25vw"
                 priority
                 className="object-cover p-5 rounded-full"
+                unoptimized
               />
             </div>
 

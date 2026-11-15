@@ -8,10 +8,13 @@ import {
   EditProfileType,
 } from "@/src/lib/schemas/editProfile";
 import { filters } from "@/src/lib/schemas/filter";
+import { profileSchema } from "@/src/lib/schemas/register";
 import { ActionResult } from "@/src/lib/schemas/types";
 import { revalidatePath } from "next/cache";
 import { SearchParams } from "next/dist/server/request/search-params";
+import { redirect } from "next/navigation";
 import { cache } from "react";
+import { success } from "zod";
 const ITEM_PERPAGE = 3;
 
 export async function getMembers(queries: SearchParams): Promise<{
@@ -49,8 +52,6 @@ export async function getMembers(queries: SearchParams): Promise<{
       };
     }
     const { gender, orderBy, fromAge, toAge, page } = parsed.data;
-    console.log(ITEM_PERPAGE);
-
     const currentYear = new Date().getFullYear();
     const fromDate = new Date(currentYear - Number(fromAge), 1, 1);
     const toDate = new Date(currentYear - Number(toAge), 1, 1);
@@ -224,4 +225,53 @@ export async function updateLastActive() {
       },
     })
     .catch((e) => console.log(e));
+}
+
+export async function createMember(rawData: unknown) {
+  // ۱. بررسی کاربر قبل از هر کار سنگینی
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/auth/register/baseinfo");
+  }
+
+  // ۲. اعتبارسنجی با Zod
+  const parsed = profileSchema.safeParse(rawData);
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: parsed.error.issues[0].message,
+    };
+  }
+
+  const { city, country, dateOfBirth, description, gender } = parsed.data;
+
+  // ۳. ترنزکشن امن در دیتابیس
+  try {
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: user.id },
+        data: { isOnboarded: true },
+      }),
+      prisma.member.create({
+        data: {
+          city,
+          country,
+          description,
+          gender: gender as string,
+          dateOfBirth: new Date(dateOfBirth),
+          name: user.name,
+          userId: user.id,
+        },
+      }),
+    ]);
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("Transaction Error:", error);
+    return {
+      success: false,
+      message: "Failed to create profile. Please try again.",
+    };
+  }
 }

@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getMemberByUserId } from "../../server/actions/members";
 import { requiredUser } from "@/src/lib/auth";
 import ProfileUser from "./ProfileUser";
@@ -8,10 +8,9 @@ export default async function MemberDetailedPage(
 ) {
   const { userId } = await props.params;
   const member = await getMemberByUserId(userId);
+  if (!member) redirect("/register/moreinfo");
   const currentUser = await requiredUser();
-
   const isCurrentUser = currentUser.id === member?.userId;
-
   if (!member) return notFound();
 
   return (

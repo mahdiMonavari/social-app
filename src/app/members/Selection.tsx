@@ -6,11 +6,32 @@ type Props = {
   options: SelectItemType[];
   layoutId: string;
   scope: string;
+  handleUrl?: boolean;
+  value?: string;
+  onChange?: (val: string) => void;
 };
 
-function Selection({ layoutId, options, scope }: Props) {
+function Selection({
+  layoutId,
+  options,
+  scope,
+  handleUrl = true,
+  value,
+  onChange,
+}: Props) {
   const { getQuery, setQuery } = useSearchQuery();
-  const currentValue = getQuery(layoutId) || options[0].label;
+  const currentValue = !handleUrl
+    ? (value ?? options[0].label)
+    : getQuery(layoutId) || options[0].label;
+
+  const handleSelect = (newValue: string) => {
+    if (!handleUrl) {
+      onChange?.(newValue);
+      console.log(newValue);
+    } else {
+      setQuery(layoutId, newValue);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center gap-1 p-1 w-full md:w-fit bg-sky-700/80 rounded-2xl border border-white/10 backdrop-blur-md">
@@ -19,7 +40,8 @@ function Selection({ layoutId, options, scope }: Props) {
         return (
           <button
             key={option.label}
-            onClick={() => setQuery(layoutId, option.label)}
+            type="button"
+            onClick={() => handleSelect(option.label)} // اینجا دیگه مهم نیست کجا تغییر میکنه
             className="relative px-6 py-2 text-sm font-medium transition-colors duration-200 z-10 flex items-center justify-center gap-2"
           >
             {isActive && (

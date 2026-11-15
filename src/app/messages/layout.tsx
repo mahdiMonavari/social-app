@@ -7,14 +7,13 @@ import {
   Separator,
 } from "@heroui/react";
 import Link from "next/link";
-import React from "react";
 import { FaArrowLeft } from "react-icons/fa6";
 import SectionTitle from "./SectionTitle";
 import MessageNav from "./MessageNav";
 
 async function Layout(props: LayoutProps<"/messages">) {
   return (
-    <div className="flex flex-col md:grid md:grid-cols-4 gap-4 md:gap-6 w-full h-[calc(100vh-90px)] min-h-0">
+    <div className="flex flex-col md:grid md:grid-cols-4 gap-4 mt-3 md:gap-6 w-full h-[calc(100vh-90px)] min-h-0 container">
       <aside className="hidden md:block md:col-span-1">
         <Card className="w-full h-full flex flex-col justify-between overflow-hidden shadow-sm">
           <CardContent>
@@ -54,8 +53,6 @@ async function Layout(props: LayoutProps<"/messages">) {
               <SectionTitle />
             </CardHeader>
             <Separator className="my-2" />
-
-            {/* بخش محتوا که با flex-1 کل فضای ارتفاعیِ کارت را می‌کشد و در صورت زیاد شدن پیام‌ها اسکرول می‌خورد */}
             <CardContent className="flex-1 flex flex-col px-3 overflow-y-auto min-h-0">
               {props.children}
             </CardContent>
